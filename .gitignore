@@ -1,0 +1,16 @@
+.vs/
+.vscode/
+build/
+json/*
+!json/CMakeLists.txt
+OpenXLSX/*
+!OpenXLSX/CMakeLists.txt
+zxing-cpp/*
+!zxing-cpp/CMakeLists.txt
+
+*.sln
+*.vcxproj
+*.filters
+*.user
+
+CMakeSettings.json
