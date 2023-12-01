@@ -11,7 +11,6 @@
 
 #include <opencv2/opencv.hpp>
 #include "ZXingOpenCV.h"
-// #include "BarcodeFormat.h"
 #include <OpenXLSX.hpp>
 #include <nlohmann/json.hpp>
 
@@ -115,8 +114,9 @@ int main()
 
 	std::cout << "Found " << excelFilename << ". Now using this as the local database." << std::endl;
 
+
 	// ************************ PHASE 2 ************************
-	// Opens the backup/cache data [1] and the students data [2], otherwise initializes them
+	// Opens the backup/cache data [1] and the students data [2]
 	//
 	// [1] The backup/cache data (cache.json) serves as the temporary store for the attendance data
 	// Structure:
@@ -127,32 +127,11 @@ int main()
 	//              }
 	//			}
 	//		}
-	// [2] The students data (students-data.json) contains the mapping between student names and their student id
-	// Structure:
-	//		{
-	//			 : {
-	//				[date]: {
-	//					[name]: [time]
-	//              }
-	//			}
-	//		}
 
 	std::string studentsDataFilename = "students-data.json";
 
 	if (!isFileInCurrentDirectory(studentsDataFilename)) {
-		std::cout << "NO STUDENTS DATA (students-data.json) FOUND.\nPlease create one first before using this program." << std::endl;
-		std::cout << R"(
-Follow this structure for the students-data.json file.
-
-{
-	[course_and_section]: [
-		{
-			name: [student_name],
-			id: [student_id]
-		}
-	]
-}
-)" << std::endl;
+		std::cout << "NO STUDENTS DATA (students-data.json) FOUND.\nPlease create one first before using this program. Use the students-data.exe program for this." << std::endl;
 		std::cout << "Press Enter to exit...";
 		std::cin.get();
 		return 0;
@@ -177,6 +156,7 @@ Follow this structure for the students-data.json file.
 		std::ofstream o(cacheFilename);
 		o << std::setw(4) << cacheData << std::endl;
 	}
+
 
 	// ************************ PHASE 3 ************************
 	// Opens the webcam to scan QR codes

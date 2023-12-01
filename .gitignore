@@ -7,6 +7,8 @@ OpenXLSX/*
 !OpenXLSX/CMakeLists.txt
 zxing-cpp/*
 !zxing-cpp/CMakeLists.txt
+jansson/*
+!jansson/CMakeLists.txt
 
 *.sln
 *.vcxproj

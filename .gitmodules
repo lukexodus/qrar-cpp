@@ -1,0 +1,12 @@
+[submodule "jansson"]
+	path = jansson
+	url = https://github.com/akheron/jansson.git
+[submodule "json"]
+	path = json
+	url = https://github.com/nlohmann/json.git
+[submodule "OpenXLSX"]
+	path = OpenXLSX
+	url = https://github.com/troldal/OpenXLSX.git
+[submodule "zxing-cpp"]
+	path = zxing-cpp
+	url = https://github.com/zxing-cpp/zxing-cpp.git
