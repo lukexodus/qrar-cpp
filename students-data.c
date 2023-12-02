@@ -8,7 +8,6 @@
 #include "students-data-utils.h"
 
 #define ESCAPE_KEY 27
-#define MAX_STR_LENGTH 100
 
 int main()
 {
@@ -45,7 +44,7 @@ int main()
 
         // [2A.1] Get the sections of the college from the user
 
-        char buffer[MAX_STR_LENGTH]; // 99 characters maximum string length
+        char buffer[100]; // 99 characters maximum string length
 
         printf("Input all sections of the college, for example \"BSCS 1B\", \"BSIT 4A\", etc\n");
         printf("Press Enter if done\n");
@@ -56,13 +55,6 @@ int main()
 
             readLine(buffer, sizeof(buffer), stdin);
             // or use `scanf("%s", &buffer);` but fgets is safer
-
-            // Remove the trailing newline character, if present
-            size_t length = strlen(buffer);
-            if (length > 0 && buffer[length - 1] == '\n')
-            {
-                buffer[length - 1] = '\0';
-            }
 
             // Check if the entered string is empty (just Enter key pressed)
             if (buffer[0] == '\0')
@@ -177,7 +169,7 @@ int main()
 
         char *dashPadding = "------------------";
         printf("%s Sections %s\n\n", dashPadding, dashPadding);
-        for (int i = 0; sections[i] != NULL; ++i)
+        for (int i = 0; i < sectionNum; ++i)
         {
             printf("[%d] %s\n", i + 1, sections[i]);
         }
