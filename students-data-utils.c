@@ -4,6 +4,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
+#include <stdbool.h>
 
 #include <jansson.h>
 
@@ -163,7 +164,7 @@ json_t *findObjectInArray(json_t *array, const char *key, const char *value)
     return NULL;
 }
 
-void printArrayOfObjects(json_t *array)
+void printArrayOfObjects(json_t *array, bool appendRowNumber)
 {
     size_t index;
     json_t *object;
@@ -192,15 +193,44 @@ void printArrayOfObjects(json_t *array)
     json_object_foreach(object, key, value)
     {
         char *str = (char *)malloc(max_widths[col_index] + 1);
+
         if (str == NULL)
         {
             fprintf(stderr, "Memory allocation error\n");
             pause();
             exit(EXIT_FAILURE);
         }
+
         strcpy(str, key);
-        rjust(str, max_widths[col_index], ' ');
-        printf("%s  ", str); // Two spaces to separate columns
+
+        char prefixedStr[110] = "     ";
+
+        if (appendRowNumber)
+        {
+            // Ensure prefixedStr is null-terminated
+            prefixedStr[sizeof(prefixedStr) - 1] = '\0';
+
+            // Check if there is enough space in str1 for concatenation
+            if (strlen(prefixedStr) + strlen(str) < sizeof(prefixedStr))
+            {
+                strcat(prefixedStr, str);
+            }
+            else
+            {
+                fprintf(stderr, "Not enough space for concatenation\n");
+                pause();
+                return 1;
+            }
+
+            rjust(prefixedStr, max_widths[col_index], ' ');
+            printf("%s  ", prefixedStr); // Two spaces to separate columns
+        }
+        else
+        {
+            rjust(str, max_widths[col_index], ' ');
+            printf("%s  ", str);
+        }
+
         free(str);
         col_index++;
     }
@@ -209,6 +239,11 @@ void printArrayOfObjects(json_t *array)
     // Print the property values
     json_array_foreach(array, index, object)
     {
+        if (appendRowNumber)
+        {
+            printf("[%02d] ", (int)index + 1);
+        }
+
         int col_index = 0;
         json_object_foreach(object, key, value)
         {
@@ -367,5 +402,13 @@ void removeObjectFromArray(json_t *array, const char *key, const char *value)
             json_array_remove(array, index);
             break;
         }
+    }
+}
+
+void modifyObject(json_t *object, const char *key, json_t *new_value)
+{
+    if (json_object_set(object, key, new_value))
+    {
+        fprintf(stderr, "error: unable to set value\n");
     }
 }

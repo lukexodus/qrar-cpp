@@ -206,7 +206,10 @@ int main()
         {
             // [3.2A] If the user wants to select a section
 
+            // atoi ASCII to integer i.e. converts the text to integer type
             int num = atoi(response);
+
+            // If within range
             if (num > 0 && num <= sectionNum)
             {
                 bool continueMainLoop = false;
@@ -218,9 +221,10 @@ int main()
                     // Gets the list of students in the specified section
                     chosenSection = sections[num - 1];
                     json_t *studentsArrayInSection = json_object_get(jsonObject, chosenSection);
+                    size_t studentsInSectionNum = json_array_size(studentsArrayInSection);
 
                     // Checks whether there are registered students in the section
-                    bool isThereStudentsInSection = json_array_size(studentsArrayInSection) != 0;
+                    bool isThereStudentsInSection = studentsInSectionNum != 0;
 
                     // Displays the header of the list
                     system("cls");
@@ -231,7 +235,7 @@ int main()
                     if (isThereStudentsInSection)
                     {
                         // Prints an aligned data table of the list of students
-                        printArrayOfObjects(studentsArrayInSection);
+                        printArrayOfObjects(studentsArrayInSection, true);
                     }
                     else
                     {
@@ -258,6 +262,43 @@ int main()
 
                     if (analyzeString(response) == "NUMBERS")
                     {
+                        int num = atoi(response);
+                        if (num > 0 && num <= studentsInSectionNum)
+                        {
+                            json_t *studentObject = json_array_get(studentsArrayInSection, num - 1);
+
+                            char newName[100];
+                            printf("Enter the new name [%s] > ", json_string_value(json_object_get(studentObject, "name")));
+                            readLine(newName, sizeof(newName), stdin);
+                            if (strlen(newName) != 0)
+                            {
+                                json_t *newNameVal = json_string(newName);
+                                if (json_object_set(studentObject, "name", newNameVal))
+                                {
+                                    fprintf(stderr, "error: unable to set name value\n");
+                                }
+                                json_decref(newNameVal);
+                            }
+
+                            char newID[10];
+                            printf("Enter the new ID [%s] > ", json_string_value(json_object_get(studentObject, "id")));
+                            readLine(newID, sizeof(newID), stdin);
+                            if (strlen(newID) != 0)
+                            {
+                                json_t *newIDVal = json_string(newID);
+                                if (json_object_set(studentObject, "id", newIDVal))
+                                {
+                                    fprintf(stderr, "error: unable to set ID value\n");
+                                }
+                                json_decref(newIDVal);
+                            }
+                            continue;
+                        }
+                        else
+                        {
+                            invalidInput2 = true;
+                            continue;
+                        }
                     }
                     else if (analyzeString(response) == "LETTERS")
                     {
@@ -367,6 +408,8 @@ int main()
         }
     }
 
+    // [4] Stores the changes to the students-data.json file
+
     char *json_string = json_dumps(jsonObject, JSON_INDENT(2));
 
     FILE *file = fopen("students-data.json", "w");
@@ -384,11 +427,11 @@ int main()
         return 1;
     }
 
+    // Closes/frees files/resources
     fclose(file);
     free(json_string);
     json_decref(jsonObject);
 
     pause();
-
     return 0;
 }
