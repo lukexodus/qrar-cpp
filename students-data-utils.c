@@ -412,3 +412,59 @@ void modifyObject(json_t *object, const char *key, json_t *new_value)
         fprintf(stderr, "error: unable to set value\n");
     }
 }
+
+void removeKey(json_t *object, const char *key)
+{
+    if (json_object_del(object, key))
+    {
+        fprintf(stderr, "error: key not found\n");
+    }
+}
+
+bool isInArrayOfStrings(int target, const char *arr[], size_t size)
+{
+    for (size_t i = 0; i < size; ++i)
+    {
+        if (strcmp(arr[i], target) == 0)
+        {
+            return true; // Value found in the array
+        }
+    }
+    return false; // Value not found in the array
+}
+
+void removeElement(int arr[], int *size, int index)
+{
+    if (index < 0 || index >= *size)
+    {
+        // Index out of bounds
+        return;
+    }
+
+    // Shift elements to the left starting from the index
+    for (int i = index; i < *size - 1; i++)
+    {
+        arr[i] = arr[i + 1];
+    }
+
+    // Decrease the size of the array
+    (*size)--;
+}
+
+void removeElementByString(char **arr, int size, const char *target)
+{
+    for (int i = 0; i < size; ++i)
+    {
+        if (strcmp(arr[i], target) == 0)
+        {
+            // Found the target string, remove it by shifting elements
+            free(arr[i]); // Free the memory allocated for the removed string
+            for (int j = i; j < size - 1; ++j)
+            {
+                arr[j] = arr[j + 1]; // Shift elements to fill the gap
+            }
+            --(size); // Update the size of the array
+            return;
+        }
+    }
+}

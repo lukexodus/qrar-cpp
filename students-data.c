@@ -33,7 +33,7 @@ int main()
     freeArrayOfStrings(filenames);
 
     json_t *jsonObject = json_object();
-    int sectionNum = 0;
+    int sectionsNum = 0;
     char **sections = NULL;
 
     // [2] Retrieves the necessary data
@@ -63,21 +63,21 @@ int main()
             }
 
             // Dynamic allocation of strings
-            sections = realloc(sections, (sectionNum + 1) * sizeof(char *));
+            sections = realloc(sections, (sectionsNum + 1) * sizeof(char *));
             if (sections == NULL)
             {
                 fprintf(stderr, "Memory allocation error\n");
                 pause();
                 return 1;
             }
-            sections[sectionNum] = strdup(buffer);
-            if (sections[sectionNum] == NULL)
+            sections[sectionsNum] = strdup(buffer);
+            if (sections[sectionsNum] == NULL)
             {
                 fprintf(stderr, "Memory allocation error\n");
                 pause();
                 return 1;
             }
-            sectionNum++;
+            sectionsNum++;
         }
 
         // [2A.2] Writes sections to json file
@@ -92,7 +92,7 @@ int main()
         }
 
         // Creates the json object
-        for (int i = 0; i < sectionNum; ++i)
+        for (int i = 0; i < sectionsNum; ++i)
         {
             json_object_set_new(jsonObject, sections[i], json_array());
         }
@@ -138,21 +138,21 @@ int main()
         json_t *value;
         json_object_foreach(jsonObject, key, value)
         {
-            sections = realloc(sections, (sectionNum + 1) * sizeof(char *));
+            sections = realloc(sections, (sectionsNum + 1) * sizeof(char *));
             if (sections == NULL)
             {
                 fprintf(stderr, "Memory allocation error\n");
                 pause();
                 return 1;
             }
-            sections[sectionNum] = strdup(key);
-            if (sections[sectionNum] == NULL)
+            sections[sectionsNum] = strdup(key);
+            if (sections[sectionsNum] == NULL)
             {
                 fprintf(stderr, "Memory allocation error\n");
                 pause();
                 return 1;
             }
-            sectionNum++;
+            sectionsNum++;
         }
     }
 
@@ -167,11 +167,18 @@ int main()
         // Displays the list of sections
         system("cls");
 
-        char *dashPadding = "------------------";
+        char dashPadding[] = "------------------";
         printf("%s Sections %s\n\n", dashPadding, dashPadding);
-        for (int i = 0; i < sectionNum; ++i)
+        if (sectionsNum > 0)
         {
-            printf("[%d] %s\n", i + 1, sections[i]);
+            for (int i = 0; i < sectionsNum; ++i)
+            {
+                printf("[%d] %s\n", i + 1, sections[i]);
+            }
+        }
+        else
+        {
+            printf("No sections configured yet");
         }
         printf("\n----------------------------------------------\n");
 
@@ -202,7 +209,7 @@ int main()
             int num = atoi(response);
 
             // If within range
-            if (num > 0 && num <= sectionNum)
+            if (num > 0 && num <= sectionsNum)
             {
                 bool continueMainLoop = false;
                 bool invalidInput2 = false;
@@ -213,10 +220,10 @@ int main()
                     // Gets the list of students in the specified section
                     chosenSection = sections[num - 1];
                     json_t *studentsArrayInSection = json_object_get(jsonObject, chosenSection);
-                    size_t studentsInSectionNum = json_array_size(studentsArrayInSection);
+                    size_t studentsInsectionsNum = json_array_size(studentsArrayInSection);
 
                     // Checks whether there are registered students in the section
-                    bool isThereStudentsInSection = studentsInSectionNum != 0;
+                    bool isThereStudentsInSection = studentsInsectionsNum != 0;
 
                     // Displays the header of the list
                     system("cls");
@@ -255,7 +262,7 @@ int main()
                     if (analyzeString(response) == "NUMBERS")
                     {
                         int num = atoi(response);
-                        if (num > 0 && num <= studentsInSectionNum)
+                        if (num > 0 && num <= studentsInsectionsNum)
                         {
                             json_t *studentObject = json_array_get(studentsArrayInSection, num - 1);
 
@@ -265,10 +272,7 @@ int main()
                             if (strlen(newName) != 0)
                             {
                                 json_t *newNameVal = json_string(newName);
-                                if (json_object_set(studentObject, "name", newNameVal))
-                                {
-                                    fprintf(stderr, "error: unable to set name value\n");
-                                }
+                                modifyObject(studentObject, "name", newNameVal);
                                 json_decref(newNameVal);
                             }
 
@@ -278,10 +282,7 @@ int main()
                             if (strlen(newID) != 0)
                             {
                                 json_t *newIDVal = json_string(newID);
-                                if (json_object_set(studentObject, "id", newIDVal))
-                                {
-                                    fprintf(stderr, "error: unable to set ID value\n");
-                                }
+                                modifyObject(studentObject, "id", newIDVal);
                                 json_decref(newIDVal);
                             }
                             continue;
@@ -378,13 +379,55 @@ int main()
             if (strcmp(response, "a") == 0)
             {
                 // Adds section
-                break;
+
+                char response[100];
+                printf("Enter the name of the section to be added > ");
+                readLine(response, sizeof(response), stdin);
+
+                json_object_set_new(jsonObject, response, json_array());
+
+                sections = realloc(sections, (sectionsNum + 1) * sizeof(char *));
+                if (sections == NULL)
+                {
+                    fprintf(stderr, "Memory allocation error\n");
+                    pause();
+                    return 1;
+                }
+                sections[sectionsNum] = strdup(response);
+                if (sections[sectionsNum] == NULL)
+                {
+                    fprintf(stderr, "Memory allocation error\n");
+                    pause();
+                    return 1;
+                }
+                sectionsNum++;
+
+                continue;
             }
 
             else if (strcmp(response, "r") == 0)
             {
                 // Removes a section
-                break;
+
+                while (true)
+                {
+                    char response[100];
+                    printf("Enter which section [number] to be removed > ");
+                    readLine(response, sizeof(response), stdin);
+                    if (analyzeString(response) == "NUMBERS")
+                    {
+                        int sectionNum = atoi(response);
+                        if (sectionNum > 0 && sectionNum <= sectionsNum)
+                        {
+                            int sectionIndex = sectionNum - 1;
+                            removeKey(jsonObject, sections[sectionIndex]);
+                            removeElement(sections, &sectionsNum, sectionIndex);
+                            break;
+                        }
+                    }
+                    printf("Invalid input.\n");
+                }
+                continue;
             }
 
             else if (strcmp(response, "q") == 0)

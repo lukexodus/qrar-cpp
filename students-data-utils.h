@@ -34,3 +34,11 @@ int readFileStatic(const char *filename, char *buffer, size_t buffer_size);
 void removeObjectFromArray(json_t *array, const char *key, const char *value);
 
 void modifyObject(json_t *object, const char *key, json_t *new_value);
+
+void removeKey(json_t *object, const char *key);
+
+bool isInArrayOfStrings(int target, const char *arr[], size_t size);
+
+void removeElement(int arr[], int *size, int index);
+
+void removeElementByString(char **arr, size_t *size, const char *target);
