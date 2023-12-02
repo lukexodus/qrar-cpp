@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\src\cstdio.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\src\cstdlib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\src\filebuf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\src\iostream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\src\stat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\include\nowide\args.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\include\nowide\config.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\include\nowide\convert.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\include\nowide\cstdio.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\include\nowide\cstdlib.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\include\nowide\detail\convert.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\include\nowide\detail\is_path.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\include\nowide\detail\is_string_container.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\include\nowide\detail\utf.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\include\nowide\filebuf.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\include\nowide\filesystem.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\include\nowide\fstream.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\include\nowide\iostream.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\include\nowide\replacement.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\include\nowide\stackstring.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\include\nowide\stat.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\include\nowide\utf\convert.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\include\nowide\utf\utf.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\include\nowide\utf8_codecvt.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\include\nowide\windows.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\OpenXLSX\Examples\external\nowide\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{ACD74E41-12FD-3CA7-B86A-44B8E67085DF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{E2E4ABDC-5CB6-37C7-A12A-AE022DA91694}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

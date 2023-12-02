@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\jansson\src\dump.c">
+      <Filter>Library Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\jansson\src\error.c">
+      <Filter>Library Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\jansson\src\hashtable.c">
+      <Filter>Library Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\jansson\src\hashtable_seed.c">
+      <Filter>Library Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\jansson\src\load.c">
+      <Filter>Library Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\jansson\src\memory.c">
+      <Filter>Library Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\jansson\src\pack_unpack.c">
+      <Filter>Library Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\jansson\src\strbuffer.c">
+      <Filter>Library Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\jansson\src\strconv.c">
+      <Filter>Library Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\jansson\src\utf.c">
+      <Filter>Library Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\jansson\src\value.c">
+      <Filter>Library Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\jansson\src\version.c">
+      <Filter>Library Sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\jansson\src\hashtable.h">
+      <Filter>Library Private Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\jansson\src\jansson_private.h">
+      <Filter>Library Private Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\jansson\src\strbuffer.h">
+      <Filter>Library Private Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\jansson\src\utf.h">
+      <Filter>Library Private Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\build\jansson\private_include\jansson_private_config.h">
+      <Filter>Library Private Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\build\jansson\include\jansson_config.h">
+      <Filter>Library Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\jansson\src\jansson.h">
+      <Filter>Library Public Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\admin\College\Freshman\CMPSC111\QRAR\jansson\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Library Private Headers">
+      <UniqueIdentifier>{CF10BE1B-23C7-344F-8FF1-47ED83CC70D7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Library Public Headers">
+      <UniqueIdentifier>{93698C72-E227-3754-9F03-8DA8B2293E6B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Library Sources">
+      <UniqueIdentifier>{09113C5B-AE6F-333D-A3C2-8A846CD018E9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
