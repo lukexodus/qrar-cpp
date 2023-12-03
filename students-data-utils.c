@@ -441,6 +441,9 @@ void removeElement(int arr[], int *size, int index)
         return;
     }
 
+    // Free memory of the element to be removed
+    free(arr[index]);
+
     // Shift elements to the left starting from the index
     for (int i = index; i < *size - 1; i++)
     {
