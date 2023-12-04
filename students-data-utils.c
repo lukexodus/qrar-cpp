@@ -433,7 +433,7 @@ bool isInArrayOfStrings(int target, const char *arr[], size_t size)
     return false; // Value not found in the array
 }
 
-void removeElement(int arr[], int *size, int index)
+void removeElementFromArrayOfStrings(char **arr, int *size, int index)
 {
     if (index < 0 || index >= *size)
     {
@@ -450,7 +450,6 @@ void removeElement(int arr[], int *size, int index)
         arr[i] = arr[i + 1];
     }
 
-    // Decrease the size of the array
     (*size)--;
 }
 

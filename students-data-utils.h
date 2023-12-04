@@ -39,6 +39,6 @@ void removeKey(json_t *object, const char *key);
 
 bool isInArrayOfStrings(int target, const char *arr[], size_t size);
 
-void removeElement(int arr[], int *size, int index);
+void removeElementFromArrayOfStrings(char **arr, int *size, int index);
 
-void removeElementByString(char **arr, size_t *size, const char *target);
+void removeElementByString(char **arr, int size, const char *target);

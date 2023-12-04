@@ -479,9 +479,12 @@ int main()
                         {
                             int sectionIndex = sectionNum - 1;
                             // Remove section from the `jsonObject`
+                            printf("DEBUG P1 %d\n", sectionIndex);
                             removeKey(jsonObject, sections[sectionIndex]);
                             // Remove section from the `sections` array
-                            removeElement(sections, &sectionsNum, sectionIndex);
+                            printf("DEBUG P2\n");
+                            removeElementFromArrayOfStrings(sections, &sectionsNum, sectionIndex);
+                            printf("DEBUG P3\n");
                             break;
                         }
                     }
