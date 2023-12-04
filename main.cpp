@@ -27,20 +27,6 @@ using json = nlohmann::json;
 //     // exit(signum);
 // }
 
-// struct student
-// {
-// 	std::string name;
-// 	std::string id;
-// 	std::string course_and_section;
-// };
-
-// void from_json(const json &j, student &s)
-// {
-// 	j.at("name").get_to(s.name);
-// 	j.at("id").get_to(s.id);
-// 	j.at("course_and_section").get_to(s.course_and_section);
-// }
-
 int main()
 {
 	// signal(SIGINT, signalHandler);
@@ -93,7 +79,7 @@ int main()
 		else
 		{
 			bool excelFileIsOpen = false;
-			;
+
 			for (const auto &file : fs::directory_iterator("."))
 			{
 				if (file.path().filename().string().find("~$") == 0 && endsWith(file.path().string(), ".xlsx"))
@@ -145,6 +131,11 @@ int main()
 		}
 	}
 
+	std::cout << "Select MODE\n\n[1] AM Time In\n[2] AM Time Out\n[3] PM Time In\n[4] Time Out\n"
+			  << std::endl;
+	int mode;
+	std::cin >> mode;
+
 	// ************************ PHASE 2 ************************
 	// Opens the backup data [1] and the students data [2]
 	//
@@ -181,7 +172,7 @@ int main()
 	}
 	else
 	{
-		// Creates/initializes the cache.json file
+		// Creates/initializes the backup.json file
 		std::ofstream outputFile(backupFilename);
 		if (!outputFile.is_open())
 		{
@@ -189,6 +180,7 @@ int main()
 		}
 
 		backupData = {{"atttendance", json::object()}};
+
 		std::ofstream o(backupFilename);
 		o << std::setw(4) << backupData << std::endl;
 	}
@@ -197,18 +189,21 @@ int main()
 	// Converts the json into a list, for easier searching of data
 
 	json students = json::array();
+	std::vector<std::string> sections;
 
 	for (auto &sectionData : studentsData.items())
 	{
 		std::string section = sectionData.key();
+		if (isInVector(sections, section))
+		{
+			sections.push_back(section);
+		}
 		json studentObjectsArray = sectionData.value();
 		for (const auto &studentObject : studentObjectsArray)
 		{
 			students.push_back({{"name", studentObject["name"]}, {"id", studentObject["id"]}, {"course_and_section", section}});
 		}
 	}
-
-	// std::vector<student> students = students.get<std::vector<student>>();
 
 	// ************************ PHASE 4 ************************
 	// Opens the webcam to scan QR codes
@@ -223,65 +218,72 @@ int main()
 		std::cout << "Could not open camera" << std::endl;
 		return 0;
 	}
-	else
+	// Gets the initial date to be checked with for date changes
+	// "%a %Y%m%d" Date format (ex. "Tue 11-29-2023")
+	std::string initialDate = datetimeStringByFormat("%a %m-%d-%Y");
+
+	// Checks every 25 milliseconds if the
+	// "Esc" (ASCII code 27) key is not pressed
+	while (cv::waitKey(25) != 27)
 	{
-		// Gets the initial date to be checked with for date changes
-		// "%a %Y%m%d" Date format (ex. "Tue 11-29-2023")
-		std::string initialDate = datetimeStringByFormat("%a %m-%d-%Y");
+		// Captures frames from the camera
+		cap >> image;
 
-		// Checks every 25 milliseconds if the
-		// "Esc" (ASCII code 27) key is not pressed
-		while (cv::waitKey(25) != 27)
+		// ReadBarcodes (from ZXingOpenCV) extracts barcode info
+		auto results = ReadBarcodes(image);
+
+		// Iterates every barcodes or QR codes scanned in an image
+		for (auto &r : results)
 		{
-			// Captures frames from the camera
-			cap >> image;
+			// Draws the result to the webcam monitor (from ZXingOpenCV)
+			DrawResult(image, r);
 
-			// ReadBarcodes (from ZXingOpenCV) extracts barcode info
-			auto results = ReadBarcodes(image);
-
-			// Iterates every barcodes or QR codes scanned in an image
-			for (auto &r : results)
+			std::string decodedData = r.text();
+			std::string date = datetimeStringByFormat("%a %m-%d-%Y");
+			// "%H:%M" Time format (ex. "15:45")
+			std::string clockTime = datetimeStringByFormat("%H:%M");
+			if (!backupData.contains(date))
 			{
-				// Draws the result to the webcam monitor (from ZXingOpenCV)
-				DrawResult(image, r);
-
-				std::string decodedData = r.text();
-				std::string date = datetimeStringByFormat("%a %m-%d-%Y");
-				// "%H:%M" Time format (ex. "15:45")
-				std::string clockTime = datetimeStringByFormat("%H:%M");
-				if (!backupData.contains(date))
-				{
-					backupData[date] = json::object();
-				}
-
-				auto it = std::find_if(students.begin(), students.end(), [decodedData](const json &obj)
-									   { return obj["id"] == decodedData; });
-
-				// Check if the student object was found
-				if (it != students.end())
-				{
-					std::string studentName = (*it)["name"];
-					if (!backupData[date].contains(studentName))
-					{
-						backupData[date][studentName] = clockTime;
-						std::cout << (*it)["name"] << std::endl;
-					}
-				}
-				else
-				{
-					std::cout << "Unregistered." << std::endl;
-				}
+				backupData[date] = json::object();
 			}
 
-			cv::imshow("Attendance Tracking Program", image);
+			auto it = std::find_if(students.begin(), students.end(), [decodedData](const json &obj)
+								   { return obj["id"] == decodedData; });
+
+			// Check if the student object was found
+			if (it != students.end())
+			{
+				std::string studentName = (*it)["name"];
+				if (!backupData[date].contains(studentName))
+				{
+					backupData[date][studentName] = clockTime;
+					std::cout << (*it)["name"] << std::endl;
+				}
+			}
+			else
+			{
+				std::cout << "Unregistered." << std::endl;
+			}
 		}
+
+		cv::imshow("Attendance Tracking Program", image);
 	}
 
-	// XLDocument doc;
-	// doc.create("Spreadsheet.xlsx");
-	// auto wks = doc.workbook().worksheet("Sheet1");
-	// wks.cell("A1").value() = "Hello, OpenXLSX!";
-	// doc.save();
+	// ************************ PHASE 5 ************************
+	// Stores the data to the excel file
+
+	XLDocument doc;
+	doc.open(excelFilename);
+	for (const auto &section : sections)
+	{
+		if (!doc.workbook().SheetExists(section))
+		{
+			doc.workbook().addWorksheet(section);
+		}
+		auto wks = doc.workbook().worksheet(section);
+		wks.cell("A1").value() = "Hello, OpenXLSX!";
+	}
+	doc.save();
 
 	std::cout << "Press Enter to exit...";
 	std::cin.get();

@@ -10,3 +10,9 @@ bool endsWith(const std::string &fullString, const std::string &ending);
 std::vector<std::string> getExcelFiles(std::string path);
 
 std::string datetimeStringByFormat(const char *format);
+
+template <typename T>
+bool isInArray(const T arr[], int size, const T &value);
+
+template <typename T>
+bool isInVector(const std::vector<T> &vec, const T &value)
