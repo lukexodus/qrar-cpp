@@ -15,4 +15,8 @@ template <typename T>
 bool isInArray(const T arr[], int size, const T &value);
 
 template <typename T>
-bool isInVector(const std::vector<T> &vec, const T &value)
+bool isInVector(const std::vector<T> &vec, const T &value);
+
+#include "utils.tpp"
+
+void pause();

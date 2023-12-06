@@ -16,6 +16,7 @@
 
 #include "utils.hpp"
 
+using namespace OpenXLSX;
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 
@@ -46,7 +47,7 @@ int main()
 		{
 			noInitialFile = true;
 			std::cout << "No xlsx files found in the directory." << std::endl;
-			std::cout << "Please enter a filename for the excel file to be created. Press enter if you would like the default name [CCIS_ATTENDANCE.xlsx]" << std::endl;
+			std::cout << "Please enter a filename for the excel file to be created. Press enter if you would like the default name [CCIS_ATTENDANCE.xlsx]\n> ";
 
 			std::getline(std::cin, excelFilename);
 
@@ -71,7 +72,7 @@ int main()
 				 (excelFiles[0].find("~$") == 0 || excelFiles[1].find("~$") == 0))
 		{
 			std::cout << "!!! The excel file is open in another window !!!" << std::endl;
-			std::cout << "Please close the excel file then press enter to continue." << std::endl;
+			std::cout << "Please close the excel file then press enter to continue.\n> ";
 			std::string continueProgram;
 			std::getline(std::cin, continueProgram);
 			continue;
@@ -85,7 +86,7 @@ int main()
 				if (file.path().filename().string().find("~$") == 0 && endsWith(file.path().string(), ".xlsx"))
 				{
 					std::cout << "!!! An excel file is open in another window !!!" << std::endl;
-					std::cout << "Please close the excel file/s then press enter to continue." << std::endl;
+					std::cout << "Please close the excel file/s then press enter to continue.\n> ";
 					std::string continueProgram;
 					std::getline(std::cin, continueProgram);
 
@@ -114,7 +115,7 @@ int main()
 			int number;
 			while (true)
 			{
-				std::cout << "Enter which excel file to use (number) > ";
+				std::cout << "Enter which excel file to use (number)\n> ";
 				std::cin >> number;
 				// If inputted number is out of range, ask again
 				if (number < 1 || number > excelFiles.size())
@@ -131,20 +132,21 @@ int main()
 		}
 	}
 
-	std::cout << "Select MODE\n\n[1] AM Time In\n[2] AM Time Out\n[3] PM Time In\n[4] Time Out\n"
-			  << std::endl;
+	std::cout << "\n\nSelect MODE\n[1] AM Time In\n[2] AM Time Out\n[3] PM Time In\n[4] PM Time Out\n> ";
 	int mode;
 	std::cin >> mode;
 
 	// ************************ PHASE 2 ************************
 	// Opens the backup data [1] and the students data [2]
-	//
+
 	// [1] The backup data (backup.json) serves as the temporary store for the attendance data
 	// Structure:
 	//		{
 	//			attendance: {
 	//				[date]: {
-	//					[name]: [time]
+	//					[course_and_section]: {
+	//                       [name]: [time]
+	//                  }
 	//              }
 	//			}
 	//		}
@@ -154,7 +156,7 @@ int main()
 	if (!isFileInCurrentDirectory(studentsDataFilename))
 	{
 		std::cout << "NO STUDENTS DATA (students-data.json) FOUND.\nPlease create one first before using this program. Use the students-data.exe program for this." << std::endl;
-		std::cout << "Press Enter to exit...";
+		std::cout << "Press Enter to exit...\n> ";
 		std::cin.get();
 		return 0;
 	}
@@ -179,7 +181,7 @@ int main()
 			std::cerr << "Error: Unable to create the JSON file." << std::endl;
 		}
 
-		backupData = {{"atttendance", json::object()}};
+		backupData = {{"attendance", json::object()}};
 
 		std::ofstream o(backupFilename);
 		o << std::setw(4) << backupData << std::endl;
@@ -194,7 +196,7 @@ int main()
 	for (auto &sectionData : studentsData.items())
 	{
 		std::string section = sectionData.key();
-		if (isInVector(sections, section))
+		if (!isInVector(sections, section))
 		{
 			sections.push_back(section);
 		}
@@ -238,26 +240,33 @@ int main()
 			// Draws the result to the webcam monitor (from ZXingOpenCV)
 			DrawResult(image, r);
 
-			std::string decodedData = r.text();
+			std::string decodedID = r.text();
 			std::string date = datetimeStringByFormat("%a %m-%d-%Y");
 			// "%H:%M" Time format (ex. "15:45")
 			std::string clockTime = datetimeStringByFormat("%H:%M");
-			if (!backupData.contains(date))
-			{
-				backupData[date] = json::object();
-			}
 
-			auto it = std::find_if(students.begin(), students.end(), [decodedData](const json &obj)
-								   { return obj["id"] == decodedData; });
+			auto it = std::find_if(students.begin(), students.end(), [decodedID](const json &obj)
+								   { return obj["id"] == decodedID; });
+
+			std::string courseAndSection = (*it)["course_and_section"];
+
+			if (!backupData["attendance"].contains(date))
+			{
+				backupData["attendance"][date] = json::object();
+			}
+			if (!backupData["attendance"][date].contains(courseAndSection))
+			{
+				backupData["attendance"][date][courseAndSection] = json::object();
+			}
 
 			// Check if the student object was found
 			if (it != students.end())
 			{
 				std::string studentName = (*it)["name"];
-				if (!backupData[date].contains(studentName))
+				if (!backupData["attendance"][date][courseAndSection].contains(decodedID))
 				{
-					backupData[date][studentName] = clockTime;
-					std::cout << (*it)["name"] << std::endl;
+					backupData["attendance"][date][courseAndSection][decodedID] = clockTime;
+					std::cout << studentName << std::endl;
 				}
 			}
 			else
@@ -270,23 +279,243 @@ int main()
 	}
 
 	// ************************ PHASE 5 ************************
-	// Stores the data to the excel file
+	// Stores the data to the backup file ("backup.json")
+
+	std::cout << "Backing up data." << std::endl;
+	std::ofstream outputFile(backupFilename);
+	if (!outputFile.is_open())
+	{
+		std::cerr << "Error opening the file!" << std::endl;
+		pause();
+		return 1;
+	}
+	outputFile << backupData << std::endl;
+	outputFile.close();
+
+	// ************************ PHASE 6 ************************
+	// Stores the necessary headers (dates, names, and IDs) to the excel file
 
 	XLDocument doc;
-	doc.open(excelFilename);
+	if (noInitialFile)
+	{
+		doc.create(excelFilename);
+	}
+	else
+	{
+		doc.open(excelFilename);
+	}
+
+	XLWorkbook wbk = doc.workbook();
+	// if (noInitialFile)
+	// {
+	// 	wbk.deleteSheet("Sheet1");
+	// }
 	for (const auto &section : sections)
 	{
-		if (!doc.workbook().SheetExists(section))
+		std::cout << "Section " << section << std::endl;
+		// Creates the sheet only if it doesn't exists, otherwise uses it
+		std::vector<std::string> sheetNames;
+		for (const auto &name : wbk.worksheetNames())
 		{
+			if (isInVector(sheetNames, name))
+			{
+				sheetNames.push_back(name);
+			}
+		}
+		if (!isInVector(sheetNames, excelFilename))
+		{
+			std::cout << "Sheet not found for this section. Now creating it..." << std::endl;
 			doc.workbook().addWorksheet(section);
 		}
 		auto wks = doc.workbook().worksheet(section);
-		wks.cell("A1").value() = "Hello, OpenXLSX!";
+
+		// APPENDS THE DATE HEADERS
+
+		// Gets the dates already written to the sheet, and
+		// Finds the first empty cell in the third row, starting from "C3"
+		std::cout << "Retrieving already written date headers" << std::endl;
+		std::vector<std::string> writtenDates;
+		XLCell currentCell = wks.cell(XLCellReference("C3"));
+		int currentColumnNum = 3;
+		while (currentCell.value().type() != XLValueType::Empty)
+		{
+			XLCellValue cellValue = currentCell.value();
+			std::string date = cellValue.get<std::string>();
+			if (!isInVector(writtenDates, date))
+			{
+				writtenDates.push_back(date);
+			}
+			currentCell = wks.cell(XLCellReference(3, ++currentColumnNum));
+		}
+		int lastEmptyColumn = currentColumnNum;
+
+		std::cout << "lastEmptyColumn " << lastEmptyColumn << std::endl;
+
+		// Gets the IDs already written to the sheet, and
+		// Finds the first empty cell in the first column, starting from "A4"
+		std::cout << "Retrieving already written ID headers" << std::endl;
+		std::vector<std::string> writtenIDs;
+		XLCell currentCell2 = wks.cell(XLCellReference("A4"));
+		int currentRowNum = 5;
+		while (currentCell2.value().type() != XLValueType::Empty)
+		{
+			XLCellValue cellValue = currentCell2.value();
+			std::string id = cellValue.get<std::string>();
+			if (!isInVector(writtenIDs, id))
+			{
+				writtenIDs.push_back(id);
+			}
+			currentCell2 = wks.cell(XLCellReference(++currentRowNum, 1));
+		}
+		int lastEmptyRow = currentRowNum;
+
+		std::cout << "lastEmptyRow " << lastEmptyRow << std::endl;
+
+		std::cout << "Writing date and ID headers" << std::endl;
+		// Writes the date not already written to the column headers (row 3)
+		std::array<std::string, 4> modes =
+			{"AM Time In", "AM Time Out", "PM Time In", "PM Time Out"};
+		for (auto &recordsByDate : backupData["attendance"].items())
+		{
+			std::string date = recordsByDate.key();
+			if (!isInVector(writtenDates, date))
+			{
+				std::cout << "Writing date " << date << "... ";
+				int lastColumn = lastEmptyColumn + 4;
+				for (int columnNum = lastEmptyColumn; columnNum < lastColumn; ++columnNum)
+				{
+					wks.cell(XLCellReference(3, columnNum)).value() = date;
+					wks.cell(XLCellReference(4, columnNum)).value() = modes[((columnNum - 3) % 4)];
+					lastEmptyColumn = columnNum + 1;
+				}
+			}
+
+			for (auto &recordsByName : backupData["attendance"][date][section].items())
+			{
+				std::string id = recordsByName.key();
+				auto it = std::find_if(students.begin(), students.end(), [id](const json &obj)
+									   { return obj["id"] == id; });
+				std::string sectionOfStudent = (*it)["course_and_section"];
+
+				if (sectionOfStudent == section)
+				{
+					std::cout << "Writing ID and name " << id << std::endl;
+
+					if (!isInVector(writtenIDs, id))
+					{
+						std::string studentName = (*it)["name"];
+						wks.cell(XLCellReference(lastEmptyRow, 1)).value() = id;
+						wks.cell(XLCellReference(lastEmptyRow, 2)).value() = studentName;
+						lastEmptyRow++;
+					}
+				}
+			}
+		}
 	}
+
+	std::cout << "Saving excel file (after appending headers)" << std::endl;
 	doc.save();
 
-	std::cout << "Press Enter to exit...";
-	std::cin.get();
+	// ************************ PHASE 7 ************************
+	// Stores the times recorded to the excel file
+
+	// doc.open(excelFilename);
+	wbk = doc.workbook();
+
+	for (auto &recordsByDate : backupData["attendance"].items())
+	{
+		std::string date = recordsByDate.key();
+		for (auto &recordsBySection : backupData["attendance"][date].items())
+		{
+			std::string section = recordsBySection.key();
+
+			auto wks = wbk.worksheet(section);
+			wbk.worksheet(section).setActive();
+
+			for (auto &recordsByIDs : backupData["attendance"][date][section].items())
+			{
+				std::string id = recordsByIDs.key();
+				std::string time = recordsByIDs.value();
+
+				// Finds the row index to where the time info shall be placed for the student
+				XLCell currentCell = wks.cell(XLCellReference("A5"));
+				int currentRow = 5;
+				int rowIndex;
+				while (true)
+				{
+					if (currentCell.value().type() == XLValueType::Empty)
+					{
+						std::cout << "ERROR: Could not find the corresponding row coordinate of the student" << id << std::endl;
+						pause();
+						return 1;
+					}
+
+					XLCellValue cellValue = currentCell.value();
+					std::string cellStringValue = cellValue.get<std::string>();
+
+					if (cellValue == id)
+					{
+						rowIndex = currentRow;
+						break;
+					}
+
+					currentCell = wks.cell(XLCellReference(++currentRow, 1));
+				}
+
+				// Finds the column index to where the time info shall be placed for the student
+				XLCell currentCell2 = wks.cell(XLCellReference("C3"));
+				int currentColumn = 3;
+				int columnIndex;
+				while (true)
+				{
+					if (currentCell2.value().type() == XLValueType::Empty)
+					{
+						std::cout << "ERROR: Could not find the corresponding column coordinate of the student " << id << std::endl;
+						pause();
+						return 1;
+					}
+
+					XLCellValue cellValue = currentCell2.value();
+					std::string cellStringValue = cellValue.get<std::string>();
+
+					if (cellValue == date)
+					{
+						columnIndex = currentColumn;
+						break;
+					}
+
+					currentCell2 = wks.cell(XLCellReference(++currentColumn, 1));
+				}
+				if (mode == 1)
+				{
+					columnIndex = columnIndex;
+				}
+				else if (mode == 2)
+				{
+					columnIndex += 1;
+				}
+				else if (mode == 3)
+				{
+					columnIndex += 2;
+				}
+				else if (mode == 4)
+				{
+					columnIndex += 3;
+				}
+
+				std::cout << "rowIndex = " << rowIndex << std::endl;
+				std::cout << "columnIndex = " << columnIndex << std::endl;
+				std::cout << "time = " << time << std::endl;
+				wks.cell(XLCellReference(rowIndex, columnIndex)).value() = time;
+			}
+		}
+	}
+
+	std::cout << "Saving excel file" << std::endl;
+	doc.save();
+	doc.close();
+
+	pause();
 
 	return 0;
 }
