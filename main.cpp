@@ -137,7 +137,7 @@ int main()
 	std::cin >> mode;
 
 	// ************************ PHASE 2 ************************
-	// Opens the backup data [1] and the students data [2]
+	// Opens and retrieves the data from the backup [1] and the students data [2]
 
 	// [1] The backup data (backup.json) serves as the temporary store for the attendance data
 	// Structure:
@@ -149,6 +149,18 @@ int main()
 	//                  }
 	//              }
 	//			}
+	//		}
+
+	// [2] The students data (students-data.json) is where the information associated with the IDs are derived from
+	// This file is manages by students-data.exe
+	// Structure:
+	//		{
+	//			[course_and_section]: [
+	//				{
+	//					"name": [name],
+	//                  "id": [id]
+	//              }
+	//			]
 	//		}
 
 	std::string studentsDataFilename = "students-data.json";
@@ -189,6 +201,17 @@ int main()
 
 	// ************************ PHASE 3 ************************
 	// Converts the json into a list, for easier searching of data
+	// This list contains objects, where each object contains all
+	// information needed about one student
+
+	// Structure:
+	//		[
+	//		    {
+	//				"name": [name],
+	//				"id": [id],
+	//				"course_and_section": [course_and_section]
+	//			}
+	//		]
 
 	json students = json::array();
 	std::vector<std::string> sections;
@@ -245,11 +268,12 @@ int main()
 			// "%H:%M" Time format (ex. "15:45")
 			std::string clockTime = datetimeStringByFormat("%H:%M");
 
-			auto it = std::find_if(students.begin(), students.end(), [decodedID](const json &obj)
-								   { return obj["id"] == decodedID; });
+			auto iterator = std::find_if(students.begin(), students.end(), [decodedID](const json &obj)
+										 { return obj["id"] == decodedID; });
 
-			std::string courseAndSection = (*it)["course_and_section"];
+			std::string courseAndSection = (*iterator)["course_and_section"];
 
+			// Initializes the properties if they are not initialized yet
 			if (!backupData["attendance"].contains(date))
 			{
 				backupData["attendance"][date] = json::object();
@@ -259,10 +283,11 @@ int main()
 				backupData["attendance"][date][courseAndSection] = json::object();
 			}
 
-			// Check if the student object was found
-			if (it != students.end())
+			// Check if the student is registered or not
+			// If the student is registered, it stores the info (time)
+			if (iterator != students.end())
 			{
-				std::string studentName = (*it)["name"];
+				std::string studentName = (*iterator)["name"];
 				if (!backupData["attendance"][date][courseAndSection].contains(decodedID))
 				{
 					backupData["attendance"][date][courseAndSection][decodedID] = clockTime;
@@ -275,6 +300,7 @@ int main()
 			}
 		}
 
+		// Title/header of the window
 		cv::imshow("Attendance Tracking Program", image);
 	}
 
@@ -295,6 +321,7 @@ int main()
 	// ************************ PHASE 6 ************************
 	// Stores the necessary headers (dates, names, and IDs) to the excel file
 
+	// Opens the excel file if it exists, otherwise initializes it
 	XLDocument doc;
 	if (noInitialFile)
 	{
@@ -306,13 +333,8 @@ int main()
 	}
 
 	XLWorkbook wbk = doc.workbook();
-	// if (noInitialFile)
-	// {
-	// 	wbk.deleteSheet("Sheet1");
-	// }
 	for (const auto &section : sections)
 	{
-		std::cout << "Section " << section << std::endl;
 		// Creates the sheet only if it doesn't exists, otherwise uses it
 		std::vector<std::string> sheetNames;
 		for (const auto &name : wbk.worksheetNames())
@@ -324,7 +346,6 @@ int main()
 		}
 		if (!isInVector(sheetNames, excelFilename))
 		{
-			std::cout << "Sheet not found for this section. Now creating it..." << std::endl;
 			doc.workbook().addWorksheet(section);
 		}
 		auto wks = doc.workbook().worksheet(section);
@@ -333,7 +354,6 @@ int main()
 
 		// Gets the dates already written to the sheet, and
 		// Finds the first empty cell in the third row, starting from "C3"
-		std::cout << "Retrieving already written date headers" << std::endl;
 		std::vector<std::string> writtenDates;
 		XLCell currentCell = wks.cell(XLCellReference("C3"));
 		int currentColumnNum = 3;
@@ -349,11 +369,8 @@ int main()
 		}
 		int lastEmptyColumn = currentColumnNum;
 
-		std::cout << "lastEmptyColumn " << lastEmptyColumn << std::endl;
-
 		// Gets the IDs already written to the sheet, and
 		// Finds the first empty cell in the first column, starting from "A4"
-		std::cout << "Retrieving already written ID headers" << std::endl;
 		std::vector<std::string> writtenIDs;
 		XLCell currentCell2 = wks.cell(XLCellReference("A4"));
 		int currentRowNum = 5;
@@ -369,18 +386,15 @@ int main()
 		}
 		int lastEmptyRow = currentRowNum;
 
-		std::cout << "lastEmptyRow " << lastEmptyRow << std::endl;
-
-		std::cout << "Writing date and ID headers" << std::endl;
-		// Writes the date not already written to the column headers (row 3)
 		std::array<std::string, 4> modes =
 			{"AM Time In", "AM Time Out", "PM Time In", "PM Time Out"};
+
+		// Writes the date not already written to the column headers (row 3)
 		for (auto &recordsByDate : backupData["attendance"].items())
 		{
 			std::string date = recordsByDate.key();
 			if (!isInVector(writtenDates, date))
 			{
-				std::cout << "Writing date " << date << "... ";
 				int lastColumn = lastEmptyColumn + 4;
 				for (int columnNum = lastEmptyColumn; columnNum < lastColumn; ++columnNum)
 				{
@@ -390,20 +404,20 @@ int main()
 				}
 			}
 
+			// Writes the IDs and names not already written to the IDs/names headers (columns 1 and 2 respectively)
 			for (auto &recordsByName : backupData["attendance"][date][section].items())
 			{
 				std::string id = recordsByName.key();
-				auto it = std::find_if(students.begin(), students.end(), [id](const json &obj)
-									   { return obj["id"] == id; });
-				std::string sectionOfStudent = (*it)["course_and_section"];
+				auto iterator = std::find_if(students.begin(), students.end(), [id](const json &obj)
+											 { return obj["id"] == id; });
+				std::string sectionOfStudent = (*iterator)["course_and_section"];
 
 				if (sectionOfStudent == section)
 				{
-					std::cout << "Writing ID and name " << id << std::endl;
 
 					if (!isInVector(writtenIDs, id))
 					{
-						std::string studentName = (*it)["name"];
+						std::string studentName = (*iterator)["name"];
 						wks.cell(XLCellReference(lastEmptyRow, 1)).value() = id;
 						wks.cell(XLCellReference(lastEmptyRow, 2)).value() = studentName;
 						lastEmptyRow++;
@@ -413,13 +427,11 @@ int main()
 		}
 	}
 
-	std::cout << "Saving excel file (after appending headers)" << std::endl;
 	doc.save();
 
 	// ************************ PHASE 7 ************************
 	// Stores the times recorded to the excel file
 
-	// doc.open(excelFilename);
 	wbk = doc.workbook();
 
 	for (auto &recordsByDate : backupData["attendance"].items())
@@ -459,7 +471,8 @@ int main()
 						break;
 					}
 
-					currentCell = wks.cell(XLCellReference(++currentRow, 1));
+					currentRow++;
+					currentCell = wks.cell(XLCellReference(currentRow, 1));
 				}
 
 				// Finds the column index to where the time info shall be placed for the student
@@ -484,34 +497,33 @@ int main()
 						break;
 					}
 
-					currentCell2 = wks.cell(XLCellReference(++currentColumn, 1));
+					currentColumn++;
+					currentCell2 = wks.cell(XLCellReference(currentColumn, 1));
 				}
-				if (mode == 1)
+				// Finds the appropriate column based on the mode
+				if (mode == 1) // AM Time In
 				{
 					columnIndex = columnIndex;
 				}
-				else if (mode == 2)
+				else if (mode == 2) // AM Time Out
 				{
 					columnIndex += 1;
 				}
-				else if (mode == 3)
+				else if (mode == 3) // PM Time In
 				{
 					columnIndex += 2;
 				}
-				else if (mode == 4)
+				else if (mode == 4) // PM Time Out
 				{
 					columnIndex += 3;
 				}
 
-				std::cout << "rowIndex = " << rowIndex << std::endl;
-				std::cout << "columnIndex = " << columnIndex << std::endl;
-				std::cout << "time = " << time << std::endl;
+				// Stores the time info to the target cell
 				wks.cell(XLCellReference(rowIndex, columnIndex)).value() = time;
 			}
 		}
 	}
 
-	std::cout << "Saving excel file" << std::endl;
 	doc.save();
 	doc.close();
 
