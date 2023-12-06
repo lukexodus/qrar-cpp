@@ -132,9 +132,17 @@ int main()
 		}
 	}
 
-	std::cout << "\n\nSelect MODE\n[1] AM Time In\n[2] AM Time Out\n[3] PM Time In\n[4] PM Time Out\n> ";
 	int mode;
-	std::cin >> mode;
+	while (true)
+	{
+		std::cout << "\n\nSelect MODE\n[1] AM Time In\n[2] AM Time Out\n[3] PM Time In\n[4] PM Time Out\n> ";
+		std::cin >> mode;
+		if (mode >= 1 && mode <= 4)
+		{
+			break;
+		}
+		std::cout << "Invalid input\n> ";
+	}
 
 	// ************************ PHASE 2 ************************
 	// Opens and retrieves the data from the backup [1] and the students data [2]
@@ -524,6 +532,7 @@ int main()
 		}
 	}
 
+	std::cout << "Saving excel file..." << std::endl;
 	doc.save();
 	doc.close();
 
