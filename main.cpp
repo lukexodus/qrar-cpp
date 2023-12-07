@@ -153,9 +153,11 @@ int main()
 	//			attendance: {
 	//				[date]: {
 	//					[course_and_section]: {
-	//                       [name]: [time]
-	//                  }
-	//              }
+	//            [mode]: {
+	//              [name]: [time]
+	//            }
+	//          }
+	//        }
 	//			}
 	//		}
 
@@ -166,8 +168,8 @@ int main()
 	//			[course_and_section]: [
 	//				{
 	//					"name": [name],
-	//                  "id": [id]
-	//              }
+	//          "id": [id]
+	//        }
 	//			]
 	//		}
 
@@ -290,15 +292,19 @@ int main()
 			{
 				backupData["attendance"][date][courseAndSection] = json::object();
 			}
+			if (!backupData["attendance"][date][courseAndSection].contains(mode))
+			{
+				backupData["attendance"][date][courseAndSection][mode] = json::object();
+			}
 
 			// Check if the student is registered or not
 			// If the student is registered, it stores the info (time)
 			if (iterator != students.end())
 			{
 				std::string studentName = (*iterator)["name"];
-				if (!backupData["attendance"][date][courseAndSection].contains(decodedID))
+				if (!backupData["attendance"][date][courseAndSection][mode].contains(decodedID))
 				{
-					backupData["attendance"][date][courseAndSection][decodedID] = clockTime;
+					backupData["attendance"][date][courseAndSection][mode][decodedID] = clockTime;
 					std::cout << studentName << std::endl;
 				}
 			}
@@ -413,7 +419,7 @@ int main()
 			}
 
 			// Writes the IDs and names not already written to the IDs/names headers (columns 1 and 2 respectively)
-			for (auto &recordsByName : backupData["attendance"][date][section].items())
+			for (auto &recordsByName : backupData["attendance"][date][section][mode].items())
 			{
 				std::string id = recordsByName.key();
 				auto iterator = std::find_if(students.begin(), students.end(), [id](const json &obj)
@@ -452,7 +458,7 @@ int main()
 			auto wks = wbk.worksheet(section);
 			wbk.worksheet(section).setActive();
 
-			for (auto &recordsByIDs : backupData["attendance"][date][section].items())
+			for (auto &recordsByIDs : backupData["attendance"][date][section][mode].items())
 			{
 				std::string id = recordsByIDs.key();
 				std::string time = recordsByIDs.value();
@@ -509,7 +515,7 @@ int main()
 					currentCell2 = wks.cell(XLCellReference(currentColumn, 1));
 				}
 				// Finds the appropriate column based on the mode
-				if (mode == 1) // AM Time In
+				if (mode == 1) // AM Time In  
 				{
 					columnIndex = columnIndex;
 				}
