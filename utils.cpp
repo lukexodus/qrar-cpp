@@ -105,7 +105,21 @@ std::string datetimeStringByFormat(const char *format)
 void pause()
 {
     std::cout << "Press Enter to exit...";
-    // int string;
-    // std::cin >> string;
-    std::cin.get();
+    int string;
+    std::cin >> string;
+    // std::cin.get();
+}
+
+int findIndex(const std::vector<std::string> &vec, const std::string &searchString)
+{
+    auto it = std::find(vec.begin(), vec.end(), searchString);
+
+    if (it != vec.end())
+    {
+        return std::distance(vec.begin(), it);
+    }
+    else
+    {
+        return -1; // Not found
+    }
 }

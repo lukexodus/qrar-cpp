@@ -20,3 +20,5 @@ bool isInVector(const std::vector<T> &vec, const T &value);
 #include "utils.tpp"
 
 void pause();
+
+int findIndex(const std::vector<std::string> &vec, const std::string &searchString);
