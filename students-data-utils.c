@@ -112,23 +112,6 @@ const char *analyzeString(const char *str)
     }
 }
 
-json_t *find_object_in_array(json_t *array, const char *key, const char *value)
-{
-    size_t index;
-    json_t *object;
-
-    json_array_foreach(array, index, object)
-    {
-        const char *object_value = json_string_value(json_object_get(object, key));
-        if (object_value && strcmp(object_value, value) == 0)
-        {
-            return object;
-        }
-    }
-
-    return NULL;
-}
-
 json_t *findObjectsInArray(json_t *array, const char *key, const char *value)
 {
     json_t *matching_objects = json_array();

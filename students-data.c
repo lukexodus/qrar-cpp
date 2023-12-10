@@ -253,10 +253,10 @@ int main()
                     json_t *studentsArrayInSection = json_object_get(jsonObject, chosenSection);
 
                     // `json_array_size` gets the size of the array (json_array)
-                    size_t studentsInsectionsNum = json_array_size(studentsArrayInSection);
+                    size_t studentsInsertionsNum = json_array_size(studentsArrayInSection);
 
                     // Checks whether there are registered students in the section
-                    bool isThereStudentsInSection = studentsInsectionsNum != 0;
+                    bool isThereStudentsInSection = studentsInsertionsNum != 0;
 
                     // Displays the header of the list
                     system("cls");
@@ -298,7 +298,7 @@ int main()
                     if (analyzeString(response) == "NUMBERS")
                     {
                         int num = atoi(response);
-                        if (num > 0 && num <= studentsInsectionsNum)
+                        if (num > 0 && num <= studentsInsertionsNum)
                         {
                             // Retrieves the current student object
                             json_t *studentObject = json_array_get(studentsArrayInSection, num - 1);
@@ -526,8 +526,10 @@ int main()
         return 1;
     }
 
-    // Closes/frees files/resources
+    // Closes files
     fclose(file);
+
+    // Frees resources
     free(json_string);
     json_decref(jsonObject);
 

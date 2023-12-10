@@ -33,16 +33,22 @@ target_link_libraries( qrar ${OpenCV_LIBS} ZXing OpenXLSX::OpenXLSX nlohmann_jso
 
 add_executable(students-data students-data.c students-data-utils.c)
 
+add_executable(qr-code-generator qr-code-generator.cpp utils.cpp)
+
 target_link_libraries( students-data jansson)
+
+target_link_libraries( qr-code-generator ${OpenCV_LIBS} ZXing OpenXLSX::OpenXLSX nlohmann_json::nlohmann_json)
 
 if (MSVC)
     target_compile_options(qrar PRIVATE /W3)
     target_compile_options(students-data PRIVATE /W3)
+    target_compile_options(qr-code-generator PRIVATE /W3)
 endif()
 
 if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     target_compile_options(qrar PRIVATE -Wall -Wextra -Werror)
     target_compile_options(students-data PRIVATE -Wall -Wextra -Werror)
+    target_compile_options(qr-code-generator PRIVATE -Wall -Wextra -Werror)
 endif()
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
