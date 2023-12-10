@@ -105,9 +105,9 @@ std::string datetimeStringByFormat(const char *format)
 void pause()
 {
     std::cout << "Press Enter to exit...";
-    int string;
-    std::cin >> string;
-    // std::cin.get();
+    // int string;
+    // std::cin >> string;
+    std::cin.get();
 }
 
 int findIndex(const std::vector<std::string> &vec, const std::string &searchString)

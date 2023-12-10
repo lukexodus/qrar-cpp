@@ -11,6 +11,9 @@
 
 #include <opencv2/opencv.hpp>
 #include "ZXingOpenCV.h"
+#include "ReadBarcode.h"
+#include "BarcodeFormat.h"
+#include "DecodeHints.h"
 #include <OpenXLSX.hpp>
 #include <nlohmann/json.hpp>
 
@@ -20,18 +23,8 @@ using namespace OpenXLSX;
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 
-// Function to handle the interrupt signal (Ctrl+C)
-// void signalHandler(void);
-// void signalHandler(void) {
-//     std::cout << "Interrupt signal received.\n";
-
-//     // exit(signum);
-// }
-
 int main()
 {
-	// signal(SIGINT, signalHandler);
-
 	// ************************ PHASE 1 ************************
 	// Gets the filename of the excel file to be used
 
@@ -268,8 +261,12 @@ int main()
 		// Captures frames from the camera
 		cap >> image;
 
+		// This configures the reader to be able to read barcodes also,
+		// aside from QR codes
+		auto hints = ZXing::DecodeHints().setFormats(ZXing::BarcodeFormat::Any);
+
 		// ReadBarcodes (from ZXingOpenCV) extracts barcode info
-		auto results = ReadBarcodes(image);
+		auto results = ReadBarcodes(image, hints);
 
 		// Iterates every barcodes or QR codes scanned in an image
 		for (auto &r : results)
@@ -352,13 +349,6 @@ int main()
 
 	XLWorkbook wbk = doc.workbook();
 
-	// Headers already written on the excel file before it is opened
-	std::vector<std::string> alreadyWrittenIDs;
-	std::vector<std::string> alreadyWrittenDates;
-
-	// Headers written by the program during runtime
-	std::vector<std::string> writtenIDs;
-	std::vector<std::string> writtenDates;
 	for (const auto &section : sections)
 	{
 		// Creates the sheet only if it doesn't exists, otherwise uses it
@@ -372,14 +362,20 @@ int main()
 		}
 		if (!isInVector(sheetNames, section))
 		{
-			std::cout << "Creating sheet" << std::endl;
 			doc.workbook().addWorksheet(section);
 		}
 		auto wks = doc.workbook().worksheet(section);
 
+		// Headers already written on the excel file before it is opened
+		std::vector<std::string> alreadyWrittenIDs;
+		std::vector<std::string> alreadyWrittenDates;
+
+		// Headers written by the program during runtime
+		std::vector<std::string> writtenIDs;
+		std::vector<std::string> writtenDates;
+
 		// Gets the dates already written to the sheet, and
 		// Finds the first empty cell in the third row, starting from "C3"
-		std::cout << "Finding written dates and the last empty column" << std::endl;
 		XLCell currentCell = wks.cell(XLCellReference("C3"));
 		int currentColumnNum = 3;
 		while (currentCell.value().type() != XLValueType::Empty)
@@ -394,17 +390,8 @@ int main()
 		}
 		int lastEmptyColumn = currentColumnNum;
 
-		// std::cout << "lastEmptyColumn " << lastEmptyColumn << std::endl;
-
-		// std::cout << "Written Dates" << std::endl;
-		// for (const auto writtenDate : alreadyWrittenDates)
-		// {
-		// 	std::cout << "writtenDate " << writtenDate << std::endl;
-		// }
-
 		// Gets the IDs already written to the sheet, and
 		// Finds the first empty cell in the first column, starting from "A5"
-		std::cout << "Finding written IDs and the last empty row" << std::endl;
 		XLCell currentCell2 = wks.cell(XLCellReference("A5"));
 		int currentRowNum = 5;
 		while (currentCell2.value().type() != XLValueType::Empty)
@@ -413,20 +400,11 @@ int main()
 			std::string id = cellValue.get<std::string>();
 			if (!isInVector(alreadyWrittenIDs, id))
 			{
-				std::cout << "Writing id " << id << " to written IDs" << std::endl;
 				alreadyWrittenIDs.push_back(id);
 			}
 			currentCell2 = wks.cell(XLCellReference(++currentRowNum, 1));
 		}
 		int lastEmptyRow = currentRowNum;
-
-		// std::cout << "lastEmptyRow " << lastEmptyRow << std::endl;
-
-		// std::cout << "Written IDs" << std::endl;
-		// for (const auto writtenID : alreadyWrittenIDs)
-		// {
-		// 	std::cout << "writtenID " << writtenID << std::endl;
-		// }
 
 		// Writes the date not already written to the column headers (row 3)
 		for (auto &recordsByDate : backupData["attendance"].items())
@@ -434,7 +412,6 @@ int main()
 			std::string date = recordsByDate.key();
 			if (!isInVector(alreadyWrittenDates, date) && !isInVector(writtenDates, date))
 			{
-				std::cout << "Writing date header " << date << std::endl;
 				int lastColumn = lastEmptyColumn + 4;
 				for (int columnNum = lastEmptyColumn; columnNum < lastColumn; ++columnNum)
 				{
@@ -461,7 +438,6 @@ int main()
 					{
 						if (!isInVector(alreadyWrittenIDs, id) && !isInVector(writtenIDs, id))
 						{
-							std::cout << "Writing ID header " << id << std::endl;
 							std::string studentName = (*iterator)["name"];
 							wks.cell(XLCellReference(lastEmptyRow, 1)).value() = id;
 							wks.cell(XLCellReference(lastEmptyRow, 2)).value() = studentName;
@@ -497,13 +473,11 @@ int main()
 				std::string modeRecorded = recordsByMode.key();
 
 				// Finds the column index to where the time info shall be placed for the student
-				std::cout << "Finding the column index" << std::endl;
 				XLCell currentCell2 = wks.cell(XLCellReference("C3"));
 				int currentColumn = 3;
 				int columnIndex;
 				while (true)
 				{
-					std::cout << "currentColumn " << currentColumn << std::endl;
 					if (currentCell2.value().type() == XLValueType::Empty)
 					{
 						std::cout << "ERROR: Could not find the corresponding column coordinate for date " << date << std::endl;
@@ -533,7 +507,6 @@ int main()
 					std::string time = recordsByIDs.value();
 
 					// Finds the row index to where the time info shall be placed for the student
-					std::cout << "Finding the row index" << std::endl;
 					XLCell currentCell = wks.cell(XLCellReference("A5"));
 					int currentRow = 5;
 					int rowIndex;
@@ -560,7 +533,6 @@ int main()
 					}
 
 					// Stores the time info to the target cell
-					std::cout << "Writing the time " << time << " - Row: " << rowIndex << " - Column: " << columnIndex << std::endl;
 					wks.cell(XLCellReference(rowIndex, columnIndex)).value() = time;
 				}
 			}
