@@ -254,6 +254,11 @@ int main()
 	// "%a %Y%m%d" Date format (ex. "Tue 11-29-2023")
 	std::string initialDate = datetimeStringByFormat("%a %m-%d-%Y");
 
+	std::cout << "\n\n******************** LOG ********************\n"
+			  << std::endl;
+
+	bool unregisteredDisplayed = false;
+
 	// Checks every 25 milliseconds if the
 	// "Esc" (ASCII code 27) key is not pressed
 	while (cv::waitKey(25) != 27)
@@ -268,15 +273,11 @@ int main()
 		// ReadBarcodes (from ZXingOpenCV) extracts barcode info
 		auto results = ReadBarcodes(image, hints);
 
-		std::cout << "DEBUG P1" << std::endl;
-
 		// Iterates every barcodes or QR codes scanned in an image
 		for (auto &r : results)
 		{
 			// Draws the result to the webcam monitor (from ZXingOpenCV)
 			DrawResult(image, r);
-
-			std::cout << "DEBUG P2" << std::endl;
 
 			std::string decodedID = r.text();
 			std::string date = datetimeStringByFormat("%a %m-%d-%Y");
@@ -285,6 +286,21 @@ int main()
 
 			auto iterator = std::find_if(students.begin(), students.end(), [decodedID](const json &obj)
 										 { return obj["id"] == decodedID; });
+
+			// Detects if the student with the scanned ID is registered or not
+			if (iterator == students.end())
+			{
+				if (!unregisteredDisplayed)
+				{
+					std::cout << "Unregistered." << std::endl;
+					unregisteredDisplayed = true;
+				}
+				break;
+			}
+			else
+			{
+				unregisteredDisplayed = false;
+			}
 
 			std::string courseAndSection = (*iterator)["course_and_section"];
 
@@ -302,8 +318,6 @@ int main()
 				backupData["attendance"][date][courseAndSection][mode] = json::object();
 			}
 
-			std::cout << "DEBUG P3" << std::endl;
-
 			// Check if the student is registered or not
 			// If the student is registered, it stores the info (time)
 			if (iterator != students.end())
@@ -312,22 +326,21 @@ int main()
 				if (!backupData["attendance"][date][courseAndSection][mode].contains(decodedID))
 				{
 					backupData["attendance"][date][courseAndSection][mode][decodedID] = clockTime;
-					std::cout << studentName << std::endl;
+					std::cout << date << " " << clockTime << " " << studentName << "\a" << std::endl;
 				}
 			}
 			else
 			{
 				std::cout << "Unregistered." << std::endl;
 			}
-
-			std::cout << "DEBUG P4" << std::endl;
 		}
 
 		// Title/header of the window
 		cv::imshow("Attendance Tracking Program", image);
 	}
 
-	std::cout << "DEBUG P5" << std::endl;
+	std::cout << "\n*********************************************\n\n"
+			  << std::endl;
 
 	// ************************ PHASE 5 ************************
 	// Stores the data to the backup file ("backup.json")
@@ -343,10 +356,10 @@ int main()
 	outputFile << backupData << std::endl;
 	outputFile.close();
 
-	std::cout << "DEBUG P6" << std::endl;
-
 	// ************************ PHASE 6 ************************
 	// Stores the necessary headers (dates, names, and IDs) to the excel file
+
+	std::cout << "Writing to excel file." << std::endl;
 
 	// Opens the excel file if it exists, otherwise initializes it
 	XLDocument doc;
@@ -359,9 +372,9 @@ int main()
 		doc.open(excelFilename);
 	}
 
-	std::cout << "DEBUG P7" << std::endl;
-
 	XLWorkbook wbk = doc.workbook();
+
+	std::vector<std::string> unregisteredIDs;
 
 	for (const auto &section : sections)
 	{
@@ -424,6 +437,7 @@ int main()
 		for (auto &recordsByDate : backupData["attendance"].items())
 		{
 			std::string date = recordsByDate.key();
+
 			if (!isInVector(alreadyWrittenDates, date) && !isInVector(writtenDates, date))
 			{
 				int lastColumn = lastEmptyColumn + 4;
@@ -446,6 +460,18 @@ int main()
 					std::string id = recordsByID.key();
 					auto iterator = std::find_if(students.begin(), students.end(), [id](const json &obj)
 												 { return obj["id"] == id; });
+
+					// Detects if the student with the scanned ID is registered or not
+					if (iterator == students.end())
+					{
+						if (!isInVector(unregisteredIDs, id))
+						{
+							std::cout << "Student with the ID of " << id << " is not registered on the system." << std::endl;
+							unregisteredIDs.push_back(id);
+						}
+						break;
+					}
+
 					std::string sectionOfStudent = (*iterator)["course_and_section"];
 
 					if (sectionOfStudent == section)
@@ -466,6 +492,13 @@ int main()
 	}
 
 	doc.save();
+
+	if (unregisteredIDs.size() > 0)
+	{
+		std::cout << "You can use the students-data.exe program to register students." << std::endl;
+		pause();
+		return 0;
+	}
 
 	// ************************ PHASE 7 ************************
 	// Stores the times recorded to the excel file
