@@ -268,11 +268,15 @@ int main()
 		// ReadBarcodes (from ZXingOpenCV) extracts barcode info
 		auto results = ReadBarcodes(image, hints);
 
+		std::cout << "DEBUG P1" << std::endl;
+
 		// Iterates every barcodes or QR codes scanned in an image
 		for (auto &r : results)
 		{
 			// Draws the result to the webcam monitor (from ZXingOpenCV)
 			DrawResult(image, r);
+
+			std::cout << "DEBUG P2" << std::endl;
 
 			std::string decodedID = r.text();
 			std::string date = datetimeStringByFormat("%a %m-%d-%Y");
@@ -298,6 +302,8 @@ int main()
 				backupData["attendance"][date][courseAndSection][mode] = json::object();
 			}
 
+			std::cout << "DEBUG P3" << std::endl;
+
 			// Check if the student is registered or not
 			// If the student is registered, it stores the info (time)
 			if (iterator != students.end())
@@ -313,11 +319,15 @@ int main()
 			{
 				std::cout << "Unregistered." << std::endl;
 			}
+
+			std::cout << "DEBUG P4" << std::endl;
 		}
 
 		// Title/header of the window
 		cv::imshow("Attendance Tracking Program", image);
 	}
+
+	std::cout << "DEBUG P5" << std::endl;
 
 	// ************************ PHASE 5 ************************
 	// Stores the data to the backup file ("backup.json")
@@ -333,6 +343,8 @@ int main()
 	outputFile << backupData << std::endl;
 	outputFile.close();
 
+	std::cout << "DEBUG P6" << std::endl;
+
 	// ************************ PHASE 6 ************************
 	// Stores the necessary headers (dates, names, and IDs) to the excel file
 
@@ -346,6 +358,8 @@ int main()
 	{
 		doc.open(excelFilename);
 	}
+
+	std::cout << "DEBUG P7" << std::endl;
 
 	XLWorkbook wbk = doc.workbook();
 

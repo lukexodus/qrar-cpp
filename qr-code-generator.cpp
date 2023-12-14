@@ -43,8 +43,7 @@ int main()
     if (!isFileInCurrentDirectory(studentsDataFilename))
     {
         std::cout << "NO STUDENTS DATA (students-data.json) FOUND.\nPlease create one first before using this program. Use the students-data.exe program for this." << std::endl;
-        std::cout << "Press Enter to exit...\n> ";
-        std::cin.get();
+        pause();
         return 0;
     }
 
@@ -55,7 +54,6 @@ int main()
     try
     {
         fs::create_directory("QR_Codes");
-        std::cout << "Directory created successfully.\n";
     }
     catch (const fs::filesystem_error &ex)
     {
@@ -68,7 +66,7 @@ int main()
     {
         std::string section = recordsBySection.key();
 
-        std::string sectionDirectoryName = "QR_Codes/" + section;
+        std::string sectionDirectoryName = "QR Codes/" + section;
 
         try
         {

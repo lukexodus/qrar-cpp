@@ -145,11 +145,11 @@ int main()
         }
 
         // Gets all sections registered
-        const char *key; // The property name
-        json_t *value;   // JSON values should be of type `json_t`
+        const char *sectionName; // The property name
+        json_t *array;           // JSON values should be of type `json_t`
 
         // Iterates the key-value pairs of the `jsonObject`
-        json_object_foreach(jsonObject, key, value)
+        json_object_foreach(jsonObject, sectionName, array)
         {
             // Allocates memory for one string value (char *) for the section name.
             // `char *` means a pointer to the first element of an
@@ -164,7 +164,7 @@ int main()
             }
             // Adds the section name to the `sections` array
             // by using the `sectionsNum` as the index
-            sections[sectionsNum] = strdup(key);
+            sections[sectionsNum] = strdup(sectionName);
             if (sections[sectionsNum] == NULL)
             {
                 fprintf(stderr, "Memory allocation error\n");
