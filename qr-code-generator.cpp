@@ -53,7 +53,7 @@ int main()
     // Use the create_directory function to create the directory
     try
     {
-        fs::create_directory("QR_Codes");
+        fs::create_directory("QR Codes");
     }
     catch (const fs::filesystem_error &ex)
     {

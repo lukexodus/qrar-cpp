@@ -248,21 +248,6 @@ void printArrayOfObjects(json_t *array, bool appendRowNumber)
     }
 }
 
-// Left-justification function
-void ljust(char *str, int width, char padChar)
-{
-    int len = strlen(str);
-    if (len < width)
-    {
-        int padding = width - len;
-        strncat(str, &padChar, 1); // Append the padding character
-        for (int i = 0; i < padding; ++i)
-        {
-            strncat(str, &padChar, 1);
-        }
-    }
-}
-
 // Right-justification function
 void rjust(char *str, int width, char padChar)
 {
@@ -271,27 +256,6 @@ void rjust(char *str, int width, char padChar)
     {
         int padding = width - len;
         for (int i = 0; i < padding; ++i)
-        {
-            strncat(str, &padChar, 1);
-        }
-    }
-}
-
-// Center alignment function
-void center(char *str, int width, char padChar)
-{
-    int len = strlen(str);
-    if (len < width)
-    {
-        int padding = width - len;
-        int leftPadding = padding / 2;
-        int rightPadding = padding - leftPadding;
-        for (int i = 0; i < leftPadding; ++i)
-        {
-            strncat(str, &padChar, 1);
-        }
-        strncat(str, " ", 1);
-        for (int i = 0; i < rightPadding; ++i)
         {
             strncat(str, &padChar, 1);
         }
@@ -319,33 +283,6 @@ void *createHyphenString(int numHyphens)
     hyphenString[numHyphens] = '\0';
 
     return hyphenString;
-}
-
-void printRawString(const char *str)
-{
-    for (int i = 0; str[i] != '\0'; ++i)
-    {
-        printf("%d ", str[i]);
-    }
-    printf("\n");
-}
-
-void removeNewlines(char *str)
-{
-    // Iterate through the string
-    for (int i = 0; str[i]; ++i)
-    {
-        // Check for newline characters and remove them
-        if (str[i] != '\n' && str[i] != '\r')
-        {
-            str[i] = str[i];
-        }
-        else
-        {
-            // If it's a newline, replace it with a null character
-            str[i] = '\0';
-        }
-    }
 }
 
 int readFileStatic(const char *filename, char *buffer, size_t buffer_size)
@@ -404,18 +341,6 @@ void removeKey(json_t *object, const char *key)
     }
 }
 
-bool isInArrayOfStrings(int target, const char *arr[], size_t size)
-{
-    for (size_t i = 0; i < size; ++i)
-    {
-        if (strcmp(arr[i], target) == 0)
-        {
-            return true; // Value found in the array
-        }
-    }
-    return false; // Value not found in the array
-}
-
 void removeElementFromArrayOfStrings(char **arr, int *size, int index)
 {
     if (index < 0 || index >= *size)
@@ -434,22 +359,4 @@ void removeElementFromArrayOfStrings(char **arr, int *size, int index)
     }
 
     (*size)--;
-}
-
-void removeElementByString(char **arr, int size, const char *target)
-{
-    for (int i = 0; i < size; ++i)
-    {
-        if (strcmp(arr[i], target) == 0)
-        {
-            // Found the target string, remove it by shifting elements
-            free(arr[i]); // Free the memory allocated for the removed string
-            for (int j = i; j < size - 1; ++j)
-            {
-                arr[j] = arr[j + 1]; // Shift elements to fill the gap
-            }
-            --(size); // Update the size of the array
-            return;
-        }
-    }
 }
