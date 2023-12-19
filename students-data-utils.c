@@ -52,7 +52,7 @@ void freeArrayOfStrings(char **arrayOfStrings)
 
 void pause()
 {
-    printf("\nPress Enter to exit...\n");
+    printf("\nPress any key to exit...\n");
     getchar();
 }
 

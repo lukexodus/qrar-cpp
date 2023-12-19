@@ -11,13 +11,13 @@
 
 int main()
 {
-
     // [1] Checks if students-data.json already exists in the current directory
 
     char **filenames = getFilenames("*.*");
     if (filenames == NULL)
     {
-        fprintf(stderr, "Error getting filenames\n");
+        fprintf(stderr, "ERROR GETTING FILENAMES\n");
+        pause();
         return 0;
     }
     bool jsonFileExists = false;
@@ -32,11 +32,11 @@ int main()
     }
     freeArrayOfStrings(filenames); // Free resources
 
+    // [2] Retrieves the necessary data
+
     json_t *jsonObject = json_object(); // Object to where the data in the file is placed
     int sectionsNum = 0;                // Track the number of sections
     char **sections = NULL;             // Array of strings (section names)
-
-    // [2] Retrieves the necessary data
 
     if (!jsonFileExists)
     {
@@ -52,14 +52,15 @@ int main()
         // Continuously inputs the section names
         while (true)
         {
-            printf("Enter section name: ");
-            // `readLine` is a wrapper function around `fgets` that automatically
+
+            // `readLine` is a wrapper function aprintf("Enter section name: ");round `fgets` that automatically
             // removes the ending newline (\n) character
             // `stdin` is the standard input stream, for inputting stuff
             readLine(response, sizeof(response), stdin);
             // or use `scanf("%s", &response);` but fgets is safer
 
             // Check if the entered string is empty (Enter key pressed)
+
             if (response[0] == '\0')
             {
                 // Break the loop
@@ -88,7 +89,8 @@ int main()
         // [2A.2] Writes sections to json file
 
         // Creates students-data.json file
-        FILE *file = fopen("students-data.json", "w"); // "w" means write
+        FILE *file = fopen("students-data.json", "w");
+        // "w" means write, "r" means read, "a" means append
         if (file == NULL)
         {
             fprintf(stderr, "error: could not open file\n");
@@ -126,7 +128,7 @@ int main()
         // Opens students-data.json file and reads its contents
         // The `readFileStatic` reads the text from 'students-data.json' file,
         // and then puts it on the `jsonString` variable
-        char jsonString[1024]; // 1024 bytes or 1 megabyte
+        char jsonString[10240]; // 10240 bytes or 10 megabyte
         if (!readFileStatic("students-data.json", jsonString, sizeof(jsonString)))
         {
             fprintf(stderr, "Error reading input\n");
@@ -232,15 +234,12 @@ int main()
         {
             // [3.2A] If the user wants to select a section
 
-            // atoi ASCII to integer i.e. converts the text to integer type
+            // ASCII to integer i.e. converts the text to integer type
             int num = atoi(response);
 
             // If within range
             if (num > 0 && num <= sectionsNum)
             {
-                // Used for going back to the main loop from the following loop
-                bool continueMainLoop = false;
-
                 bool invalidInput2 = false;
 
                 // [3.3] Students list loop
@@ -360,7 +359,7 @@ int main()
                             json_object_set_new(newStudentObject, "id", json_string(id));
                             if (!json_is_array(studentsArrayInSection))
                             {
-                                fprintf(stderr, "error: the property 'studentsArrayInSection' is not an array\n");
+                                fprintf(stderr, "error: 'studentsArrayInSection' is not an array\n");
                                 pause();
                                 return 1;
                             }
@@ -392,13 +391,11 @@ int main()
                                     printf("Student with the inputted ID not found\n");
                                 }
                             }
-                            continue;
                         }
 
                         else if (strcmp(response, "b") == 0)
                         {
                             // Go back
-                            continueMainLoop = true;
                             break;
                         }
                         else
@@ -407,11 +404,6 @@ int main()
                             continue;
                         }
                     }
-                }
-                if (continueMainLoop)
-                {
-                    continueMainLoop = false;
-                    continue;
                 }
             }
             else
@@ -431,13 +423,13 @@ int main()
                 // Adds section
 
                 // Inputs section name
-                char response[100];
+                char sectionName[100];
                 printf("Enter the name of the section to be added > ");
-                readLine(response, sizeof(response), stdin);
+                readLine(sectionName, sizeof(sectionName), stdin);
 
                 // Initializes the new key of the JSON which is the section name
                 // with an empty array (to where the student objects will be stored)
-                json_object_set_new(jsonObject, response, json_array());
+                json_object_set_new(jsonObject, sectionName, json_array());
 
                 // Allocates memory for one string value
                 sections = realloc(sections, (sectionsNum + 1) * sizeof(char *));
@@ -449,7 +441,7 @@ int main()
                 }
 
                 // Stores the response (section name) into the array
-                sections[sectionsNum] = strdup(response);
+                sections[sectionsNum] = strdup(sectionName);
                 if (sections[sectionsNum] == NULL)
                 {
                     fprintf(stderr, "Memory allocation error\n");
@@ -519,7 +511,7 @@ int main()
     }
 
     // Stores the string into the file
-    if (fputs(json_string, file) == EOF)
+    if (fputs(json_string, file) == EOF) // End of file
     {
         fprintf(stderr, "error: could not write to file\n");
         pause();
