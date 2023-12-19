@@ -7,8 +7,6 @@
 
 #include "students-data-utils.h"
 
-#define ESCAPE_KEY 27
-
 int main()
 {
     // [1] Checks if students-data.json already exists in the current directory
