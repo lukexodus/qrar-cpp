@@ -11,15 +11,13 @@ void readLine(char *buffer, size_t bufferSize, FILE *stream);
 
 const char *analyzeString(const char *str);
 
-json_t *findObjectsInArray(json_t *array, const char *key, const char *value);
-
 json_t *findObjectInArray(json_t *array, const char *key, const char *value);
 
 void printArrayOfObjects(json_t *array, bool appendRowNumber);
 
 void ljust(char *str, int width, char padChar);
 
-void rjust(char *str, int width, char padChar);
+void ljust(char *str, int width, char padChar);
 
 void center(char *str, int width, char padChar);
 

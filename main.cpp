@@ -67,6 +67,7 @@ int main()
 			std::cout << "!!! The excel file is open in another window !!!" << std::endl;
 			std::cout << "Please close the excel file then press enter to continue.\n> ";
 			std::string continueProgram;
+			// Read a line of text until the Enter key is pressed
 			std::getline(std::cin, continueProgram);
 			continue;
 		}
@@ -125,6 +126,8 @@ int main()
 		}
 	}
 
+	// Input Mode
+
 	std::vector<std::string> modes =
 		{"AM Time In", "AM Time Out", "PM Time In", "PM Time Out"};
 
@@ -180,7 +183,10 @@ int main()
 		return 0;
 	}
 
+	// Syntax to initialize an object
+	// The values inside the parentheses are arguments to ifstream constructor
 	std::ifstream f("students-data.json");
+
 	json studentsData = json::parse(f);
 
 	std::string backupFilename = "backup.json";

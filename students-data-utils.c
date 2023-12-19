@@ -12,11 +12,16 @@
 
 char **getFilenames(const char *dir_path)
 {
+    // Declares a handle for finding file
     HANDLE hFind;
+
+    // Declares a structure (FindFileData) that will hold information about the found file.
     WIN32_FIND_DATA FindFileData;
+
     char **filenames = NULL;
     int count = 0;
 
+    // Attempts to find the first file in the specified directory and retrieves information about it. The handle is set to the search handle.
     hFind = FindFirstFile(dir_path, &FindFileData);
     if (hFind == INVALID_HANDLE_VALUE)
     {
@@ -33,6 +38,7 @@ char **getFilenames(const char *dir_path)
 
     FindClose(hFind);
 
+    // Final reallocation to ensure the array is properly terminated with a NULL entry
     filenames = realloc(filenames, sizeof(char *) * (count + 1));
     filenames[count] = NULL;
 
@@ -112,24 +118,6 @@ const char *analyzeString(const char *str)
     }
 }
 
-json_t *findObjectsInArray(json_t *array, const char *key, const char *value)
-{
-    json_t *matching_objects = json_array();
-    size_t index;
-    json_t *object;
-
-    json_array_foreach(array, index, object)
-    {
-        const char *object_value = json_string_value(json_object_get(object, key));
-        if (object_value && strcmp(object_value, value) == 0)
-        {
-            json_array_append(matching_objects, object);
-        }
-    }
-
-    return matching_objects;
-}
-
 json_t *findObjectInArray(json_t *array, const char *key, const char *value)
 {
     size_t index;
@@ -151,10 +139,12 @@ void printArrayOfObjects(json_t *array, bool appendRowNumber)
 {
     size_t index;
     json_t *object;
+
     char *key;
     json_t *value;
 
     // Calculate the maximum width for each column
+    // max_widths will be used to store the maximum width for each column
     int max_widths[100] = {0}; // Assuming a maximum of 100 columns
     json_array_foreach(array, index, object)
     {
@@ -173,7 +163,7 @@ void printArrayOfObjects(json_t *array, bool appendRowNumber)
 
     // Print the property names
     int col_index = 0;
-    json_object_foreach(object, key, value)
+    json_object_foreach(object, key, value) // object: last object accessed
     {
         char *str = (char *)malloc(max_widths[col_index] + 1);
 
@@ -181,20 +171,21 @@ void printArrayOfObjects(json_t *array, bool appendRowNumber)
         {
             fprintf(stderr, "Memory allocation error\n");
             pause();
-            exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE); // from stdlib; EXIT_FAILURE is typically 1
         }
 
         strcpy(str, key);
 
-        char prefixedStr[110] = "     ";
-
         if (appendRowNumber)
         {
+            // longer indentation
+            char prefixedStr[110] = "     ";
+
             // Ensure prefixedStr is null-terminated
             prefixedStr[sizeof(prefixedStr) - 1] = '\0';
 
-            // Check if there is enough space in str1 for concatenation
-            if (strlen(prefixedStr) + strlen(str) < sizeof(prefixedStr))
+            // Check if there is enough space in str for concatenation
+            if ((strlen(prefixedStr) + strlen(str)) < sizeof(prefixedStr))
             {
                 strcat(prefixedStr, str);
             }
@@ -205,12 +196,12 @@ void printArrayOfObjects(json_t *array, bool appendRowNumber)
                 return 1;
             }
 
-            rjust(prefixedStr, max_widths[col_index], ' ');
+            ljust(prefixedStr, max_widths[col_index], ' ');
             printf("%s  ", prefixedStr); // Two spaces to separate columns
         }
         else
         {
-            rjust(str, max_widths[col_index], ' ');
+            ljust(str, max_widths[col_index], ' ');
             printf("%s  ", str);
         }
 
@@ -231,7 +222,7 @@ void printArrayOfObjects(json_t *array, bool appendRowNumber)
         json_object_foreach(object, key, value)
         {
             const char *value_str = json_string_value(value);
-            char *str = (char *)malloc(max_widths[col_index] + 1);
+            char *str = (char *)malloc(max_widths[col_index] + 1); // One extra for the null terminator
             if (str == NULL)
             {
                 fprintf(stderr, "Memory allocation error\n");
@@ -239,7 +230,7 @@ void printArrayOfObjects(json_t *array, bool appendRowNumber)
                 exit(EXIT_FAILURE);
             }
             strcpy(str, value_str ? value_str : "");
-            rjust(str, max_widths[col_index], ' ');
+            ljust(str, max_widths[col_index], ' ');
             printf("%s  ", str); // Two spaces to separate columns
             free(str);
             col_index++;
@@ -248,8 +239,8 @@ void printArrayOfObjects(json_t *array, bool appendRowNumber)
     }
 }
 
-// Right-justification function
-void rjust(char *str, int width, char padChar)
+// Left-justification function
+void ljust(char *str, int width, char padChar)
 {
     int len = strlen(str);
     if (len < width)
@@ -287,6 +278,7 @@ void *createHyphenString(int numHyphens)
 
 int readFileStatic(const char *filename, char *buffer, size_t buffer_size)
 {
+    // FILE: file stream structure
     FILE *file = fopen(filename, "rb");
 
     if (file == NULL)
@@ -296,6 +288,7 @@ int readFileStatic(const char *filename, char *buffer, size_t buffer_size)
     }
 
     // Read at most (buffer_size - 1) bytes to leave room for the null terminator
+    // arguments: buffer, step size, # of elements to read, stream
     size_t bytes_read = fread(buffer, 1, buffer_size - 1, file);
 
     // Null-terminate the buffer
@@ -346,6 +339,7 @@ void removeElementFromArrayOfStrings(char **arr, int *size, int index)
     if (index < 0 || index >= *size)
     {
         // Index out of bounds
+        perror("Index out of bounds");
         return;
     }
 

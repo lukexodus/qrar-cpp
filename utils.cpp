@@ -21,44 +21,6 @@ using namespace cv;
 using namespace OpenXLSX;
 using json = nlohmann::json;
 
-bool isFileInCurrentDirectory(const std::string &filename)
-{
-    // Get the current working directory
-    fs::path currentPath = fs::current_path();
-
-    // Append the filename to the current path
-    fs::path filePath = currentPath / filename;
-
-    // Check if the file exists
-    return fs::exists(filePath) && fs::is_regular_file(filePath);
-}
-
-bool isFileInCurrentDirectory(const char *filename)
-{
-    // Get the current working directory
-    fs::path currentPath = fs::current_path();
-
-    // Append the filename to the current path
-    fs::path filePath = currentPath / filename;
-
-    // Check if the file exists
-    return fs::exists(filePath) && fs::is_regular_file(filePath);
-}
-
-// Function that checks whether a string ends in a specific string or not
-bool endsWith(const std::string &fullString, const std::string &ending)
-{
-    if (fullString.length() >= ending.length())
-    {
-        // `compare` string method returns 0 if the two substrings are equal
-        return (fullString.compare(fullString.length() - ending.length(), ending.length(), ending) == 0);
-    }
-    else
-    {
-        return false;
-    }
-}
-
 // Function that returns an array of strings of all the excel files in a directory
 std::vector<std::string> getExcelFiles(std::string path)
 {
@@ -83,19 +45,57 @@ std::vector<std::string> getExcelFiles(std::string path)
     return excelFiles;
 }
 
+// Function that checks whether a string ends in a specific string or not
+bool endsWith(const std::string &fullString, const std::string &ending)
+{
+    if (fullString.length() >= ending.length())
+    {
+        // `compare` string method returns 0 if the two substrings are equal
+        return (fullString.compare(fullString.length() - ending.length(), ending.length(), ending) == 0);
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool isFileInCurrentDirectory(const std::string &filename)
+{
+    // Get the current working directory
+    fs::path currentPath = fs::current_path();
+
+    // Append the filename to the current path
+    fs::path filePath = currentPath / filename;
+
+    // Check if the file exists
+    return fs::exists(filePath) && fs::is_regular_file(filePath);
+}
+
+bool isFileInCurrentDirectory(const char *filename)
+{
+    // Get the current working directory
+    fs::path currentPath = fs::current_path();
+
+    // Append the filename to the current path
+    fs::path filePath = currentPath / filename;
+
+    // Check if the file exists
+    return fs::exists(filePath) && fs::is_regular_file(filePath);
+}
+
 std::string datetimeStringByFormat(const char *format)
 {
-    // Get the current time point
+    // Get the current time point as `std::chrono::time_point`
     auto now = std::chrono::system_clock::now();
 
     // Convert the current time point to a time_t
     std::time_t currentTime = std::chrono::system_clock::to_time_t(now);
 
-    // Convert time_t to a tm structure (broken down time)
+    // Convert time_t to a tm structure (broken down time i.e. year, month, day, etc.)
     std::tm *localTime = std::localtime(&currentTime);
 
     // Format the date as a string
-    std::ostringstream oss;
+    std::ostringstream oss; // output string stream
     oss << std::put_time(localTime, format);
 
     // Returns the formatted date as a string
@@ -104,7 +104,7 @@ std::string datetimeStringByFormat(const char *format)
 
 void pause()
 {
-    std::cout << "** Program ended **" << std::endl;
+    std::cout << "\n**** Program ended ****" << std::endl;
     std::string string;
     std::cin >> string;
     // std::cin.get();
