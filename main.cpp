@@ -473,7 +473,7 @@ int main()
 					{
 						if (!isInVector(unregisteredIDs, id))
 						{
-							std::cout << "Student with the ID of " << id << " is not registered on the system." << std::endl;
+							std::cout << "Student with the ID " << id << " is not registered on the system." << std::endl;
 							unregisteredIDs.push_back(id);
 						}
 						break;
@@ -481,6 +481,8 @@ int main()
 
 					std::string sectionOfStudent = (*iterator)["course_and_section"];
 
+					// Writes the clock to the sheet if the student is
+					// a student of the current section
 					if (sectionOfStudent == section)
 					{
 						if (!isInVector(alreadyWrittenIDs, id) && !isInVector(writtenIDs, id))
@@ -519,6 +521,7 @@ int main()
 		{
 			std::string section = recordsBySection.key();
 
+			// Open worksheet
 			auto wks = wbk.worksheet(section);
 			wbk.worksheet(section).setActive();
 
@@ -527,11 +530,13 @@ int main()
 				std::string modeRecorded = recordsByMode.key();
 
 				// Finds the column index to where the time info shall be placed for the student
+				// Start with cell C3
 				XLCell currentCell2 = wks.cell(XLCellReference("C3"));
-				int currentColumn = 3;
+				int currentColumn = 3; // C column
 				int columnIndex;
 				while (true)
 				{
+					// If the column after the last (empty) is encountered
 					if (currentCell2.value().type() == XLValueType::Empty)
 					{
 						std::cout << "ERROR: Could not find the corresponding column coordinate for date " << date << std::endl;
@@ -551,6 +556,7 @@ int main()
 					currentColumn++;
 					currentCell2 = wks.cell(XLCellReference(3, currentColumn));
 				}
+
 				// Finds the appropriate column based on the mode
 				int index = findIndex(modes, modeRecorded);
 				columnIndex += index;
@@ -564,6 +570,8 @@ int main()
 					XLCell currentCell = wks.cell(XLCellReference("A5"));
 					int currentRow = 5;
 					int rowIndex;
+
+					// If the row after the last (empty) is encountered
 					while (true)
 					{
 						if (currentCell.value().type() == XLValueType::Empty)
