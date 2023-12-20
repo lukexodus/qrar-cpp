@@ -50,7 +50,7 @@ int main()
         // Continuously inputs the section names
         while (true)
         {
-
+            printf("Enter section name: ");
             // `readLine` is a wrapper function aprintf("Enter section name: ");round `fgets` that automatically
             // removes the ending newline (\n) character
             // `stdin` is the standard input stream, for inputting stuff

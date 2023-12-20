@@ -254,7 +254,7 @@ int main()
 	if (!cap.isOpened())
 	{
 		std::cout << "Could not open camera" << std::endl;
-		return 0;
+		return 1;
 	}
 	// Gets the initial date to be checked with for date changes
 	// "%a %Y%m%d" Date format (ex. "Tue 11-29-2023")
@@ -287,6 +287,7 @@ int main()
 
 			std::string decodedID = r.text();
 			std::string date = datetimeStringByFormat("%a %m-%d-%Y");
+
 			// "%H:%M" Time format (ex. "15:45")
 			std::string clockTime = datetimeStringByFormat("%H:%M");
 
@@ -367,7 +368,7 @@ int main()
 
 	std::cout << "Writing to excel file." << std::endl;
 
-	// Opens the excel file if it exists, otherwise initializes it
+	// Opens the excel file if it exists, otherwise creates it
 	XLDocument doc;
 	if (noInitialFile)
 	{
@@ -407,7 +408,7 @@ int main()
 		std::vector<std::string> writtenIDs;
 		std::vector<std::string> writtenDates;
 
-		// Gets the dates already written to the sheet, and
+		// Gets the dates already written to the sheet (in the third row), and
 		// Finds the first empty cell in the third row, starting from "C3"
 		XLCell currentCell = wks.cell(XLCellReference("C3"));
 		int currentColumnNum = 3;
